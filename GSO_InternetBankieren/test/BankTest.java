@@ -7,6 +7,8 @@
 import bank.bankieren.Bank;
 import bank.bankieren.Money;
 import fontys.util.NumberDoesntExistException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -63,20 +65,49 @@ public class BankTest {
     @Test
     public void maakOver()
     {
-        /**
-     * er wordt bedrag overgemaakt van de bankrekening met nummer bron naar de
-     * bankrekening met nummer bestemming, mits het afschrijven van het bedrag
-     * van de rekening met nr bron niet lager wordt dan de kredietlimiet van deze
-     * rekening 
-     * 
-     * @param bron
-     * @param bestemming
-     *            ongelijk aan bron
-     * @param bedrag
-     *            is groter dan 0
-     * @return <b>true</b> als de overmaking is gelukt, anders <b>false</b>
-     * @throws NumberDoesntExistException
-     *             als een van de twee bankrekeningnummers onbekend is
-     */
+        bank.openRekening("Tom", "Blerick");
+        bank.openRekening("Frank", "Sevenum");
+        
+        int rekeningNr1 = 100000000;
+        int rekeningNr2 = 100000001;
+        
+        try
+        {
+            //controleren of het mogelijk is naar je eigen bankrekening geld over te maken
+            assertFalse("Kan niet overmaken naar eigen rekening", bank.maakOver(rekeningNr1, rekeningNr1, new Money(100, "euro")));
+            fail("Kan niet overmaken naar eigen rekening");
+        }
+        catch (RuntimeException | NumberDoesntExistException ex)
+        {
+        }
+        
+        try
+        {
+            //controleren of het mogelijk is over te maken naar een niet bestaande rekening
+            assertFalse("Rekening bestaat niet", bank.maakOver(rekeningNr1, rekeningNr2 + 1, new Money(100, "Euro")));
+            fail("Rekening bestaat niet");
+        }
+        catch (RuntimeException | NumberDoesntExistException ex)
+        {
+        }
+        
+        try
+        {
+            assertFalse("Bedrag is kleiner als 0", bank.maakOver(rekeningNr1, rekeningNr2, new Money(-100, "euro")));
+            fail("Bedrag is kleiner als 0");
+        }
+        catch (RuntimeException | NumberDoesntExistException ex)
+        {
+        }
+        
+        try 
+        {
+            //controleren of correcte overboeking lukt
+            assertTrue("Overboeking is niet gelukt", bank.maakOver(rekeningNr1, rekeningNr2, new Money(100, "Euro")));
+            fail("Overboeking is niet gelukt");
+        }
+        catch (RuntimeException | NumberDoesntExistException ex)
+        {
+        }
     }
 }
